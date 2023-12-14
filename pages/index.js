@@ -1,29 +1,42 @@
 import MeetupList from "../components/meetups/MeetupList";
+import { MongoClient } from "mongodb";
 
-const MEETUP = [
-  {
-    id: "1",
-    title: "A first Meetup",
-    image: "https://www.gstatic.com/webp/gallery3/1.sm.png",
-    address: "Mulund",
-  },
-  {
-    id: "2",
-    title: "A Second Meetup",
-    image:
-      "https://free4kwallpapers.com/uploads/originals/2015/10/17/most-beautiful-travel-destinations.jpg",
-    address: "Kalwa",
-  },
-  {
-    id: "3",
-    title: "A Third Meetup",
-    image:
-      "https://pixabay.com/images/download/people-2944065_640.jpg?attachment",
-    address: "Mulund",
-  },
-];
-
-const HomePage = () => {
-  return <MeetupList meetups={MEETUP} />;
+const HomePage = (props) => {
+  return <MeetupList meetups={props.meetups} />;
 };
+
+// export async function getServerSideProps(context) { //changes every sec
+//   //run for every incoming request
+//   const req = context.req;
+//   const res = context.res;
+//   return {
+//     props: {
+//       meetups: MEETUP,
+//     },
+//   };
+// }
+
+export async function getStaticProps() {
+  const client = await MongoClient.connect(
+    "mongodb+srv://prabhat:prabhat@cluster0.2n1qplp.mongodb.net/meetups?retryWrites=true&w=majority"
+  );
+  const db = client.db();
+  const meetup = db.collection("meetups");
+  const result = await meetup.find().toArray();
+  console.log(result, "get");
+  client.close();
+
+  return {
+    props: {
+      meetups: result.map((i) => ({
+        title: i.title,
+        address: i.address,
+        image: i.image,
+        id: i._id.toString(),
+      })),
+    },
+    revalidate: 1000,
+  };
+}
+
 export default HomePage;
