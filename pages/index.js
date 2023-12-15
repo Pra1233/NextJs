@@ -1,8 +1,18 @@
 import MeetupList from "../components/meetups/MeetupList";
 import { MongoClient } from "mongodb";
+import Head from "next/head";
+import { Fragment } from "react";
 
 const HomePage = (props) => {
-  return <MeetupList meetups={props.meetups} />;
+  return (
+    <Fragment>
+      <Head>
+        <title>Meetups</title>
+        <meta name="description" content="Meetups"></meta>
+      </Head>
+      <MeetupList meetups={props.meetups} />;
+    </Fragment>
+  );
 };
 
 // export async function getServerSideProps(context) { //changes every sec
@@ -16,6 +26,7 @@ const HomePage = (props) => {
 //   };
 // }
 
+// Not expsed to client
 export async function getStaticProps() {
   const client = await MongoClient.connect(
     "mongodb+srv://prabhat:prabhat@cluster0.2n1qplp.mongodb.net/meetups?retryWrites=true&w=majority"
